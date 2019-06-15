@@ -1,4 +1,4 @@
-package com.chamith.app.ws;
+package com.chamith.app.ws.io.repository;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

@@ -1,4 +1,4 @@
-package com.chamith.app.ws.securrity;
+package com.chamith.app.ws.security;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -25,12 +25,22 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 		
 		
 		http.csrf().disable().authorizeRequests()
-		.antMatchers(HttpMethod.POST,"/users")
-			.permitAll().anyRequest().authenticated();
+		.antMatchers(HttpMethod.POST,SecurityConstants.SIGN_UP_URL)
+			.permitAll().
+			anyRequest().authenticated().and()
+			.addFilter(getAuthenticationFilter())
+			.addFilter(new AuthorizationFilter(authenticationManager()));
 	}
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth)throws Exception {
 		auth.userDetailsService(userDetailService).passwordEncoder(bCryptPasswordEncoder);
 	}
+	
+	public AuthenticationFilter getAuthenticationFilter()throws Exception {
+		final AuthenticationFilter filter=new AuthenticationFilter(authenticationManager());
+		filter.setFilterProcessesUrl("/users/login");
+		return filter;
+	}
+	
 }

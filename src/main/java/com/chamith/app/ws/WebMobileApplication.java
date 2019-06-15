@@ -16,5 +16,11 @@ public class WebMobileApplication {
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+	
+	@Bean
+	public SpringApplicationContext SpringApplicationContext()
+	{
+		return new SpringApplicationContext(); 
+	}
 
 }
