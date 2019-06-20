@@ -1,10 +1,13 @@
 package com.chamith.app.ws.service.impl;
 
 import java.util.ArrayList;
-
+import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,6 +21,7 @@ import com.chamith.app.ws.service.UserService;
 import com.chamith.app.ws.shared.Utils;
 import com.chamith.app.ws.shared.dto.UserDto;
 import com.chamith.app.ws.ui.model.response.ErrorMessages;
+import com.chamith.app.ws.ui.model.response.UserRest;
 
 @Service
 public class UserServiceimpl implements UserService {
@@ -82,7 +86,7 @@ public class UserServiceimpl implements UserService {
 		UserDto returnValue =new UserDto();
 		UserEntity userEntity =userRepository.findByUserId(userId);
 		if(userEntity== null) {
-		throw new UsernameNotFoundException(userId);
+		throw new UsernameNotFoundException("User with id" +userId+" not found");
 	}
 	
 	BeanUtils.copyProperties(userEntity, returnValue );
@@ -104,6 +108,37 @@ public class UserServiceimpl implements UserService {
 		BeanUtils.copyProperties(updatedUserDetails, returnValue);
 		
 		return returnValue;
+	}
+
+	@Override
+	public void deleteUser(String userId) {
+		
+		UserEntity userEntity =userRepository.findByUserId(userId);
+		
+		if(userEntity== null) {
+		throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+	}
+		userRepository.delete(userEntity);
+	}
+
+	@Override
+	public List<UserDto> getUsers(int page, int limit) {
+		List <UserDto> retrunValue=new ArrayList<>();
+		
+		if(page>0) page=page-1;
+		
+		Pageable pageableRequest =PageRequest.of(page,limit);
+		 
+		Page <UserEntity> usersPage=userRepository.findAll(pageableRequest);
+		List <UserEntity> users= usersPage.getContent();
+		
+		 for (UserEntity UserEntity :users) {
+			 UserDto userDto =new UserDto();
+			 BeanUtils.copyProperties(UserEntity, userDto);
+			 retrunValue.add(userDto);
+		 }
+		
+		return retrunValue;
 	}
 
 
